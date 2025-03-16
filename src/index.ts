@@ -1,5 +1,5 @@
 import express, { Request, Response } from 'express';
-import axios from 'axios';
+// import axios from 'axios';
 import {chromium,  Page } from 'playwright'; // Import necessary types
 // import  chromeLambda from 'chrome-aws-lambda'
 // import puppeteer, { Browser } from 'puppeteer';
@@ -11,36 +11,36 @@ const app = express();
 const port = 3000;
 
 // POST route that makes a POST request to the external API
-app.post('/send-post-request', async (req: Request, res: Response) => {
-  try {
-    // Data to be sent in the POST request
-    const data = {
-      type: 'player',
-      filters: {
-        sex: 'Płeć',
-        weight_id: 'Kategoria',
-        country: '',
-        search: '',
-        page: 1
-      }
-    };
+// app.post('/send-post-request', async (req: Request, res: Response) => {
+//   try {
+//     // Data to be sent in the POST request
+//     const data = {
+//       type: 'player',
+//       filters: {
+//         sex: 'Płeć',
+//         weight_id: 'Kategoria',
+//         country: '',
+//         search: '',
+//         page: 1
+//       }
+//     };
 
-    // Sending POST request to the external API
-    const response = await axios.post('https://www.kswmma.com/filters', data, {
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      responseType: 'text' // Requesting raw text response instead of JSON
-    });
+//     // Sending POST request to the external API
+//     const response = await axios.post('https://www.kswmma.com/filters', data, {
+//       headers: {
+//         'Content-Type': 'application/json'
+//       },
+//       responseType: 'text' // Requesting raw text response instead of JSON
+//     });
 
-    // Return the raw response text
-    res.status(200).send(response.data); // response.data is the raw response (not JSON)
-  } catch (error) {
-    // Handle errors and send error response
-    console.error('Error sending POST request:', error);
-    res.status(500).send('Something went wrong!');
-  }
-});
+//     // Return the raw response text
+//     res.status(200).send(response.data); // response.data is the raw response (not JSON)
+//   } catch (error) {
+//     // Handle errors and send error response
+//     console.error('Error sending POST request:', error);
+//     res.status(500).send('Something went wrong!');
+//   }
+// });
 
 // app.get('/generate-pdf', async (req: Request, res: Response): Promise<any> => {
 //   const urlToVisit = req.query.url as string;
