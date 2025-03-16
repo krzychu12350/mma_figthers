@@ -24,7 +24,8 @@
     "@vercel/node": "^5.1.14",
     "express": "^4.21.2",
     "playwright": "^1.51.0",
-    "puppeteer": "^24.4.0"
+    "puppeteer": "^24.4.0",
+    "ws": "^8.18.1"
   },
   "type": "module"
 }
