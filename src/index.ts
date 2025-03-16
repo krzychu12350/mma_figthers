@@ -111,7 +111,7 @@ app.get('/api/fighters', async (req: Request, res: Response) => {
     // Return the scraped data in JSON format
     res.status(200).json({ fighters: allFighters });
 
-  } catch (error) {
+  } catch (error: any) {
     // Log error details
     console.error('Error scraping the page:', error);
 
@@ -123,7 +123,9 @@ app.get('/api/fighters', async (req: Request, res: Response) => {
 
     // Respond with a failure message and include the error details (optional)
     res.status(500).json({
-      error: 'Failed to fetch and scrape the page'
+      error: 'Failed to fetch and scrape the page',
+      message: error.message, // Include the error message in the response
+      stack: error.stack,     // Optionally, include the stack trace (be cautious with this in production)
     });
   }
 });
