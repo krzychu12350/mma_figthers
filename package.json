@@ -15,7 +15,7 @@
   "devDependencies": {
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.10",
-    "@types/puppeteer": "^7.0.4",
+    "@types/puppeteer": "^5.4.7",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsx": "^4.19.3",
@@ -25,8 +25,7 @@
     "@sparticuz/chromium": "^133.0.0",
     "@sparticuz/chromium-min": "^133.0.0",
     "@vercel/node": "^2.3.0",
-    "chrome-aws-lambda": "^10.1.0",
-    "express": "^4.21.2",
+    "express": "^5.0.1",
     "playwright": "^1.51.0",
     "puppeteer": "^24.4.0",
     "puppeteer-core": "^24.4.0"
