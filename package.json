@@ -21,6 +21,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@vercel/node": "^5.1.14",
     "express": "^4.21.2",
     "playwright": "^1.51.0"
   },
