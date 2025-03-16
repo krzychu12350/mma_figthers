@@ -4,12 +4,6 @@ node_modules/
 # Ignore package lock file
 package-lock.json
 
-# Ignore TypeScript configuration files
-tsconfig.json
-
-# Ignore Vercel configuration file
-vercel.json
-
 # Ignore logs
 *.log
 
