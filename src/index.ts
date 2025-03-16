@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express';
 import { chromium, Page } from 'playwright'; // Import necessary types
-import  chromeLambda from 'chrome-aws-lambda'
-import puppeteer from 'puppeteer'
+// import  chromeLambda from 'chrome-aws-lambda'
+// import puppeteer from 'puppeteer'
 
 const app = express();
 const port = 3000;
@@ -9,7 +9,7 @@ const port = 3000;
 // let puppeteer: any;
 // let chromeLambda: any;
 
-if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+// if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
   // import("chrome-aws-lambda").then((chrome) => {
   //   chromeLambda = chrome;
   // });
@@ -20,43 +20,43 @@ if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
 //   import("puppeteer").then((pup) => {
 //     puppeteer = pup;
 //   });
-}
+// }
 
 
-app.get("/test", async (req: Request, res: Response): Promise<void> => {
-  let options: any = {
-    headless: true,
-    ignoreHTTPSErrors: true,
-  };
+// app.get("/test", async (req: Request, res: Response): Promise<void> => {
+//   let options: any = {
+//     headless: true,
+//     ignoreHTTPSErrors: true,
+//   };
 
-  if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-    options = {
-      args: [...(chromeLambda?.args || []), "--hide-scrollbars", "--disable-web-security"],
-      defaultViewport: chromeLambda?.defaultViewport || null,
-      executablePath: (await chromeLambda?.executablePath) || null,
-      headless: true,
-      ignoreHTTPSErrors: true,
-    };
-  }
+//   if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+//     options = {
+//       args: [...(chromeLambda?.args || []), "--hide-scrollbars", "--disable-web-security"],
+//       defaultViewport: chromeLambda?.defaultViewport || null,
+//       executablePath: (await chromeLambda?.executablePath) || null,
+//       headless: true,
+//       ignoreHTTPSErrors: true,
+//     };
+//   }
 
-  try {
-    let browser = await puppeteer.launch(options);
+//   try {
+//     let browser = await puppeteer.launch(options);
   
-    let page = await browser.newPage();
-    await page.goto("https://www.kswmma.com/fighters");
+//     let page = await browser.newPage();
+//     await page.goto("https://www.kswmma.com/fighters");
   
-    // Use page.content() to get the HTML content of the page
-    const pageContent = await page.content();
+//     // Use page.content() to get the HTML content of the page
+//     const pageContent = await page.content();
   
-    // Send the HTML content in the response
-    res.send(pageContent);
+//     // Send the HTML content in the response
+//     res.send(pageContent);
   
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('An error occurred while fetching the page.');
-  }
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send('An error occurred while fetching the page.');
+//   }
   
-});
+// });
 
 // Sample route to test the server
 app.get('/', (req: Request, res: Response) => {
