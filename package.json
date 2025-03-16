@@ -5,9 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node api/index.ts",
+    "start": "npx tsx api/index.ts",
     "build": "tsc",
-    "dev": "node-dev api/index.ts"
+    "dev": "npx tsx api/index.ts"
   },
   "keywords": [],
   "author": "",
