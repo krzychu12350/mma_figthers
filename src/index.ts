@@ -1,9 +1,61 @@
 import express, { Request, Response } from 'express';
-import puppeteer, { Page } from 'puppeteer-core';
-import chromium from '@sparticuz/chromium';
+import { chromium, Page } from 'playwright'; // Import necessary types
+
 
 const app = express();
 const port = 3000;
+
+let puppeteer: any;
+let chromeLambda: any;
+
+if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+  import("chrome-aws-lambda").then((chrome) => {
+    chromeLambda = chrome;
+  });
+  import("puppeteer-core").then((pup) => {
+    puppeteer = pup;
+  });
+} else {
+  import("puppeteer").then((pup) => {
+    puppeteer = pup;
+  });
+}
+
+
+app.get("/test", async (req: Request, res: Response): Promise<void> => {
+  let options: any = {
+    headless: true,
+    ignoreHTTPSErrors: true,
+  };
+
+  if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
+    options = {
+      args: [...(chromeLambda?.args || []), "--hide-scrollbars", "--disable-web-security"],
+      defaultViewport: chromeLambda?.defaultViewport || null,
+      executablePath: (await chromeLambda?.executablePath) || null,
+      headless: true,
+      ignoreHTTPSErrors: true,
+    };
+  }
+
+  try {
+    let browser = await puppeteer.launch(options);
+  
+    let page = await browser.newPage();
+    await page.goto("https://www.kswmma.com/fighters");
+  
+    // Use page.content() to get the HTML content of the page
+    const pageContent = await page.content();
+  
+    // Send the HTML content in the response
+    res.send(pageContent);
+  
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('An error occurred while fetching the page.');
+  }
+  
+});
 
 // Sample route to test the server
 app.get('/', (req: Request, res: Response) => {
@@ -21,7 +73,7 @@ async function clickPaginationPage(page: Page, pageNumber: number): Promise<void
     await page.click(`.custom-pagination span:has-text("${pageNumber}")`);
 
     // Wait for the page to load after the click
-    await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 5000)));
+    await page.waitForTimeout(2000); // Adjust the timeout if needed to ensure the page is loaded fully
     console.log(`Successfully clicked on page ${pageNumber}`);
   } catch (error) {
     console.error('Error clicking on pagination page:', error);
@@ -42,11 +94,11 @@ async function scrapeFighters(page: Page): Promise<any[]> {
 
       rows.forEach(row => {
         // Use type assertion to specify that the elements are HTMLElement
-        const name = row.querySelector('.fighter-name') 
+        const name = row.querySelector('.fighter-name')
           ? (row.querySelector('.fighter-name') as HTMLElement).innerText.replace(/\n/g, ' ').trim() // Clean up name
           : 'Unknown';
 
-        const weight = row.querySelector('.fighter-data') 
+        const weight = row.querySelector('.fighter-data')
           ? (row.querySelector('.fighter-data') as HTMLElement).innerText
           : 'No Data';
 
@@ -77,15 +129,11 @@ async function scrapeFighters(page: Page): Promise<any[]> {
   }
 }
 
+
 // Scraping route
 app.get('/api/fighters', async (req: Request, res: Response) => {
   try {
-    const browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      });
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
 
     const url = 'https://www.kswmma.com/fighters'; // URL to scrape
@@ -134,75 +182,69 @@ app.get('/api/fighters', async (req: Request, res: Response) => {
     });
   }
 });
+async function scrapeFighterDetails(page: any) {
+  try {
+    // Extract the necessary details using selectors
+    const fighterDetails = await page.evaluate(() => {
+      const details: any = {};
 
-async function scrapeFighterDetails(page: Page) {
-    try {
-      // Extract the necessary details using selectors
-      const fighterDetails = await page.evaluate(() => {
-        const details: any = {};
+      // Extract the country flag and country name
+      const countryFlag = document.querySelector('img[alt="flag"]') as HTMLImageElement;
+      details.country = countryFlag ? countryFlag.src : 'Unknown';
 
-        // Extract the country flag and country name
-        const countryFlag = document.querySelector('img[alt="flag"]') as HTMLImageElement;
-        details.country = countryFlag ? countryFlag.src : 'Unknown';
+      // Extract the fighter's name
+      const firstName = document.querySelector('.player-firstname') as HTMLElement;
+      const lastName = document.querySelector('.player-surname') as HTMLElement;
+      details.name = firstName && lastName ? `${firstName.innerText} ${lastName.innerText}` : 'Unknown Fighter';
 
-        // Extract the fighter's name
-        const firstName = document.querySelector('.player-firstname') as HTMLElement;
-        const lastName = document.querySelector('.player-surname') as HTMLElement;
-        details.name = firstName && lastName ? `${firstName.innerText} ${lastName.innerText}` : 'Unknown Fighter';
+      // Extract the weight category
+      const weightCategory = document.querySelector('.weight-category') as HTMLElement;
+      details.weightCategory = weightCategory ? weightCategory.innerText.trim() : 'Unknown Category';
 
-        // Extract the weight category
-        const weightCategory = document.querySelector('.weight-category') as HTMLElement;
-        details.weightCategory = weightCategory ? weightCategory.innerText.trim() : 'Unknown Category';
+      // Extract the fighter's photo (large version)
+      const fighterPhotoLg = document.querySelector('.fighter-photo-lg') as HTMLImageElement;
+      details.photoLgUrl = fighterPhotoLg ? fighterPhotoLg.src : 'No Large Photo';
 
-        // Extract the fighter's photo (large version)
-        const fighterPhotoLg = document.querySelector('.fighter-photo-lg') as HTMLImageElement;
-        details.photoLgUrl = fighterPhotoLg ? fighterPhotoLg.src : 'No Large Photo';
+      // Extract the fighter's photo (small version)
+      const fighterPhoto = document.querySelector('.fighter-photo') as HTMLImageElement;
+      details.photoUrl = fighterPhoto ? fighterPhoto.src : 'No Photo';
 
-        // Extract the fighter's photo (small version)
-        const fighterPhoto = document.querySelector('.fighter-photo') as HTMLImageElement;
-        details.photoUrl = fighterPhoto ? fighterPhoto.src : 'No Photo';
+      // Extract age, height, and weight
+      const fighterData = document.querySelectorAll('.fighter-data-block .fighter-data') as NodeListOf<HTMLElement>;
+      if (fighterData.length >= 3) {
+        details.age = fighterData[0] ? fighterData[0].innerText.trim() : 'N/A';
+        details.height = fighterData[1] ? fighterData[1].innerText.trim() : 'N/A';
+        details.weight = fighterData[2] ? fighterData[2].innerText.trim() : 'N/A';
+      } else {
+        details.age = 'N/A';
+        details.height = 'N/A';
+        details.weight = 'N/A';
+      }
 
-        // Extract age, height, and weight
-        const fighterData = document.querySelectorAll('.fighter-data-block .fighter-data') as NodeListOf<HTMLElement>;
-        if (fighterData.length >= 3) {
-          details.age = fighterData[0] ? fighterData[0].innerText.trim() : 'N/A';
-          details.height = fighterData[1] ? fighterData[1].innerText.trim() : 'N/A';
-          details.weight = fighterData[2] ? fighterData[2].innerText.trim() : 'N/A';
-        } else {
-          details.age = 'N/A';
-          details.height = 'N/A';
-          details.weight = 'N/A';
-        }
+      // Extract fight record (wins-losses-draws)
+      const record = document.querySelector('.fighter-record') as HTMLElement;
+      details.record = record ? record.innerText.trim() : 'No Record Available';
 
-        // Extract fight record (wins-losses-draws)
-        const record = document.querySelector('.fighter-record') as HTMLElement;
-        details.record = record ? record.innerText.trim() : 'No Record Available';
+      // Extract Instagram link (if available)
+      const instagramLink = document.querySelector('a[href^="https://www.instagram.com"]') as HTMLAnchorElement;
+      details.instagramLink = instagramLink ? instagramLink.href : 'No Instagram';
 
-        // Extract Instagram link (if available)
-        const instagramLink = document.querySelector('a[href^="https://www.instagram.com"]') as HTMLAnchorElement;
-        details.instagramLink = instagramLink ? instagramLink.href : 'No Instagram';
+      return details;
+    });
 
-        return details;
-      });
-
-      return fighterDetails;
-    } catch (error) {
-      console.error('Error scraping fighter details:', error);
-      throw new Error('Failed to scrape fighter details');
-    }
+    return fighterDetails;
+  } catch (error) {
+    console.error('Error scraping fighter details:', error);
+    throw new Error('Failed to scrape fighter details');
+  }
 }
+
 
 // New route for fetching fighter details by ID
 app.get('/api/fighters/:id', async (req: Request, res: Response) => {
   try {
     const fighterId = req.params.id;  // Extract fighter ID from the URL
-    const browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      });
-  
+    const browser = await chromium.launch({ headless: true });
     const page = await browser.newPage();
 
     const fighterUrl = `https://www.kswmma.com/zawodnikk/${fighterId}`;  // URL to the specific fighter's page
