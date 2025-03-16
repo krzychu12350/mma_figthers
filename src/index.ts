@@ -1,56 +1,121 @@
-import express, { Request, Response } from 'express';
-import puppeteer from 'puppeteer';  // Use puppeteer to interact with Browserless
-//import { WebSocket } from 'ws'; // WebSocket to connect to the Browserless API
+import express, {Request, Response} from 'express';
+import axios from 'axios';
 
 const app = express();
 const port = 3000;
 
-// Browserless WebSocket URL with your API token (replace YOUR_BROWSERLESS_API_KEY with your actual key)
-const BROWSERLESS_API_URL = 'wss://chrome.browserless.io?token=RxHRCsmVD5aJKu66a5def27825af18f30ecbd4a217';
+app.use(express.json());
 
-// Sample route to test the server
-app.get('/', (req: Request, res: Response) => {
-  res.send('Hello World!');
-});
+app.get('/fetch-fighters', async (req: Request, res: Response): Promise<any> => {
+  const options = {
+    method: 'POST',
+    url: 'https://production-sfo.browserless.io/chrome/bql',
+    params: {
+      token: 'RxHRCsmVD5aJKu66a5def27825af18f30ecbd4a217',
+    },
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: {
+      query: `mutation FetchFighters {
+        goto(url: "https://www.kswmma.com/fighters") {
+          status
+        }
 
-// Function to scrape the HTML page using Browserless (WebSocket)
-async function scrapePageWithBrowserless(url: string): Promise<string> {
-  const browser = await puppeteer.connect({
-    browserWSEndpoint: BROWSERLESS_API_URL, // Connect using the Browserless WebSocket
-  });
+        clickPage1: click(selector: ".text-center > span:nth-child(3)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page1Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
 
-  const page = await browser.newPage(); // Open a new page
+        clickPage2: click(selector: ".text-center > span:nth-child(4)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page2Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
 
-  // Navigate to the target URL
-  await page.goto(url, { waitUntil: 'domcontentloaded' });
+        clickPage3: click(selector: ".text-center > span:nth-child(5)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page3Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
 
-  // Get the HTML content of the page
-  const html = await page.content();
+        clickPage4: click(selector: ".text-center > span:nth-child(6)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page4Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
 
-  // Close the browser after scraping
-  await browser.close();
+        clickPage5: click(selector: ".text-center > span:nth-child(7)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page5Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
 
-  return html;
-}
+        clickPage6: click(selector: ".text-center > span:nth-child(8)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page6Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
 
-// Scraping route
-app.get('/scrape', async (req: Request, res: Response) => {
-  const url = 'https://www.kswmma.com/fighters'; // Example URL to scrape
+        clickPage7: click(selector: ".text-center > span:nth-child(9)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page7Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
+
+        clickPage8: click(selector: ".text-center > span:nth-child(10)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page8Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
+
+        clickPage9: click(selector: ".text-center > span:nth-child(11)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page9Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
+
+        clickPage10: click(selector: ".text-center > span:nth-child(12)", visible: true, wait: true, scroll: true) {
+          x
+          y
+        }
+        page10Content: html(selector: "div#players-page-content", visible: true) {
+          html
+        }
+      }`,
+      variables: null,
+      operationName: 'FetchFighters',
+    },
+  };
 
   try {
-    // Call the scrape function to get HTML content
-    const pageHtml = await scrapePageWithBrowserless(url);
-
-    // Send the HTML content as a response
-    res.status(200).send(pageHtml);
-
-  } catch (error) {
-    console.error('Error scraping the page:', error);
-    res.status(500).json({ error: 'Failed to fetch and scrape the page' });
+    const { data } = await axios.request(options);
+    return res.json(data); // Return the fetched data as a JSON response
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).json({ message: 'Error fetching data', error: error.message });
   }
 });
 
-// Start the server
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+  console.log(`Server running at http://localhost:${port}`);
 });
