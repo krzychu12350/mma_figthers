@@ -1,24 +1,25 @@
 import express, { Request, Response } from 'express';
 import { chromium, Page } from 'playwright'; // Import necessary types
-
+import  chromeLambda from 'chrome-aws-lambda'
+import puppeteer from 'puppeteer'
 
 const app = express();
 const port = 3000;
 
-let puppeteer: any;
-let chromeLambda: any;
+// let puppeteer: any;
+// let chromeLambda: any;
 
 if (process.env.AWS_LAMBDA_FUNCTION_VERSION) {
-  import("chrome-aws-lambda").then((chrome) => {
-    chromeLambda = chrome;
-  });
-  import("puppeteer-core").then((pup) => {
-    puppeteer = pup;
-  });
-} else {
-  import("puppeteer").then((pup) => {
-    puppeteer = pup;
-  });
+  // import("chrome-aws-lambda").then((chrome) => {
+  //   chromeLambda = chrome;
+  // });
+//   import("puppeteer-core").then((pup) => {
+//     puppeteer = pup;
+//   });
+// } else {
+//   import("puppeteer").then((pup) => {
+//     puppeteer = pup;
+//   });
 }
 
 
