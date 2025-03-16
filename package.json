@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/axios": "^0.14.4",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.10",
     "@types/puppeteer": "^5.4.7",
@@ -25,6 +26,7 @@
     "@sparticuz/chromium": "^133.0.0",
     "@sparticuz/chromium-min": "^133.0.0",
     "@vercel/node": "^2.3.0",
+    "axios": "^1.8.3",
     "express": "^5.0.1",
     "playwright": "^1.51.0",
     "puppeteer": "^24.4.0",
