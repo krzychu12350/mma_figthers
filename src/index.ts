@@ -1,8 +1,12 @@
 import express, { Request, Response } from 'express';
-import { chromium, Page } from 'playwright'; // Import necessary types
+import puppeteer from 'puppeteer'; // Use puppeteer for Browserless
+import { Page } from 'puppeteer'; // Import necessary types
 
 const app = express();
 const port = 3000;
+
+// Browserless WebSocket URL with your API token (replace YOUR_BROWSERLESS_API_KEY with your actual key)
+const BROWSERLESS_API_URL = 'wss://chrome.browserless.io?token=RxHRCsmVD5aJKu66a5def27825af18f30ecbd4a217';
 
 // Sample route to test the server
 app.get('/', (req: Request, res: Response) => {
@@ -19,14 +23,15 @@ async function clickPaginationPage(page: Page, pageNumber: number): Promise<void
     // Click on the page number dynamically based on the provided page number
     await page.click(`.custom-pagination span:has-text("${pageNumber}")`);
     
-    // Wait for the page to load after the click
-    await page.waitForTimeout(2000); // Adjust the timeout if needed to ensure the page is loaded fully
+    // Wait for an element on the page to load (you can adjust the selector based on your page content)
+    await page.waitForSelector('.fighter-card', { timeout: 5000 }); // Adjust this selector if needed
     console.log(`Successfully clicked on page ${pageNumber}`);
   } catch (error) {
     console.error('Error clicking on pagination page:', error);
     throw error;
   }
 }
+
 
 // Function to scrape fighter data from the current page
 async function scrapeFighters(page: Page): Promise<any[]> {
@@ -76,11 +81,13 @@ async function scrapeFighters(page: Page): Promise<any[]> {
   }
 }
 
-
 // Scraping route
 app.get('/api/fighters', async (req: Request, res: Response) => {
   try {
-    const browser = await chromium.launch({ headless: true });
+    // Connect to Browserless
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: BROWSERLESS_API_URL,
+    });
     const page = await browser.newPage();
 
     const url = 'https://www.kswmma.com/fighters'; // URL to scrape
@@ -116,6 +123,7 @@ app.get('/api/fighters', async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch and scrape the page' });
   }
 });
+
 async function scrapeFighterDetails(page: any) {
     try {
       // Extract the necessary details using selectors
@@ -172,13 +180,15 @@ async function scrapeFighterDetails(page: any) {
       throw new Error('Failed to scrape fighter details');
     }
   }
-  
 
 // New route for fetching fighter details by ID
 app.get('/api/fighters/:id', async (req: Request, res: Response) => {
   try {
     const fighterId = req.params.id;  // Extract fighter ID from the URL
-    const browser = await chromium.launch({ headless: true });
+    // Connect to Browserless
+    const browser = await puppeteer.connect({
+      browserWSEndpoint: BROWSERLESS_API_URL,
+    });
     const page = await browser.newPage();
 
     const fighterUrl = `https://www.kswmma.com/zawodnikk/${fighterId}`;  // URL to the specific fighter's page

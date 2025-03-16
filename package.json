@@ -5,9 +5,9 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "npx tsx api/index.ts",
+    "start": "npx tsx src/index.ts",
     "build": "tsc",
-    "dev": "npx tsx api/index.ts"
+    "dev": "npx tsx src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -23,7 +23,8 @@
   "dependencies": {
     "@vercel/node": "^5.1.14",
     "express": "^4.21.2",
-    "playwright": "^1.51.0"
+    "playwright": "^1.51.0",
+    "puppeteer": "^24.4.0"
   },
   "type": "module"
 }
