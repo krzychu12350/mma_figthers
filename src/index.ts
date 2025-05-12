@@ -35,8 +35,6 @@ async function getBrowser() {
 async function checkPageStatus(url: string) {
   let statusCode;
   try {
-    const browser = await getBrowser();
-    console.log(browser)
     // const page = await browser.newPage();
     // const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
     // statusCode = response && response.status() === 200 ? 200 : 404;
