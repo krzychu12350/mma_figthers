@@ -2,9 +2,9 @@ import axios from 'axios';
 import express, { Request, Response } from 'express';
 // import axios from 'axios';
 // import {chromium,  Page } from 'playwright'; // Import necessary types
-import chromium from '@sparticuz/chromium-min';
-import puppeteerCore, { Browser } from 'puppeteer-core';
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import chromium from '@sparticuz/chromium';
+
 
 // import  chromeLambda from 'chrome-aws-lambda'
 // import puppeteer, { Browser } from 'puppeteer';
@@ -15,17 +15,18 @@ import puppeteer from 'puppeteer';
 const app = express();
 const port = 3000;
 
-const remoteExecutablePath = "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
+// const remoteExecutablePath = "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
 
-let browser: Browser;
+let browser: any;
 
 async function getBrowser() {
   if (browser) return browser;
 
-  browser = await puppeteerCore.launch({
+  browser = await puppeteer.launch({
     args: chromium.args,
-    executablePath: await chromium.executablePath(remoteExecutablePath),
-    headless: true,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless,
   });
 
   return browser;

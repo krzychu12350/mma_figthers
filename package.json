@@ -21,6 +21,7 @@
     "typescript": "^5.8.2"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^133.0.0",
     "@sparticuz/chromium-min": "^133.0.0",
     "@vercel/node": "^5.1.14",
     "axios": "^1.8.3",
