@@ -1,10 +1,10 @@
-// import axios from 'axios';
+import axios from 'axios';
 import express, { Request, Response } from 'express';
 // import axios from 'axios';
 // import {chromium,  Page } from 'playwright'; // Import necessary types
-// import chromium from '@sparticuz/chromium-min';
-// import puppeteerCore, { Browser } from 'puppeteer-core';
-// import puppeteer from 'puppeteer';
+import chromium from '@sparticuz/chromium-min';
+import puppeteerCore, { Browser } from 'puppeteer-core';
+import puppeteer from 'puppeteer';
 
 // import  chromeLambda from 'chrome-aws-lambda'
 // import puppeteer, { Browser } from 'puppeteer';
@@ -14,6 +14,23 @@ import express, { Request, Response } from 'express';
 // https://awstip.com/use-puppeteer-with-vercel-serverless-functions-in-a-next-js-application-5d6bbe627f84
 const app = express();
 const port = 3000;
+
+
+let browser: Browser;
+
+async function getBrowser() {
+  if (browser) return browser;
+
+  browser = await puppeteerCore.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless,
+    acceptInsecureCerts: true,
+  });
+
+  return browser;
+}
 
 async function checkPageStatus(url: string) {
   let statusCode;
