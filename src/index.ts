@@ -19,18 +19,18 @@ const port = 3000;
 
 let browser: any;
 
-// async function getBrowser() {
-//   if (browser) return browser;
+async function getBrowser() {
+  if (browser) return browser;
 
-//   browser = await puppeteer.launch({
-//     args: chromium.args,
-//     defaultViewport: chromium.defaultViewport,
-//     executablePath: await chromium.executablePath(),
-//     headless: chromium.headless,
-//   });
+  browser = await puppeteer.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless,
+  });
 
-//   return browser;
-// }
+  return browser;
+}
 
 async function checkPageStatus(url: string) {
   let statusCode;
