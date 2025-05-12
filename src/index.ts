@@ -15,6 +15,7 @@ import puppeteer from 'puppeteer';
 const app = express();
 const port = 3000;
 
+const remoteExecutablePath = "https://github.com/Sparticuz/chromium/releases/download/v121.0.0/chromium-v121.0.0-pack.tar";
 
 let browser: Browser;
 
@@ -23,10 +24,8 @@ async function getBrowser() {
 
   browser = await puppeteerCore.launch({
     args: chromium.args,
-    defaultViewport: chromium.defaultViewport,
-    executablePath: await chromium.executablePath(),
-    headless: chromium.headless,
-    acceptInsecureCerts: true,
+    executablePath: await chromium.executablePath(remoteExecutablePath),
+    headless: true,
   });
 
   return browser;
