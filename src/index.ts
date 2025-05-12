@@ -1,7 +1,11 @@
 import axios from 'axios';
 import express, { Request, Response } from 'express';
 // import axios from 'axios';
-import {chromium,  Page } from 'playwright'; // Import necessary types
+// import {chromium,  Page } from 'playwright'; // Import necessary types
+import chromium from '@sparticuz/chromium-min';
+import puppeteerCore, { Browser } from 'puppeteer-core';
+import puppeteer from 'puppeteer';
+
 // import  chromeLambda from 'chrome-aws-lambda'
 // import puppeteer, { Browser } from 'puppeteer';
 // import puppeteerCore, { Browser as BrowserCore } from 'puppeteer-core';
@@ -11,6 +15,52 @@ import {chromium,  Page } from 'playwright'; // Import necessary types
 const app = express();
 const port = 3000;
 
+
+let browser: Browser;
+
+async function getBrowser() {
+  if (browser) return browser;
+
+  browser = await puppeteerCore.launch({
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(),
+    headless: chromium.headless,
+    acceptInsecureCerts: true,
+  });
+
+  return browser;
+}
+
+async function checkPageStatus(url: string) {
+  let statusCode;
+  try {
+    const browser = await getBrowser();
+    console.log(browser)
+    // const page = await browser.newPage();
+    // const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
+    // statusCode = response && response.status() === 200 ? 200 : 404;
+    // await page.close();
+    statusCode = 200;
+  } catch (error) {
+    console.error('Error accessing page:', error);
+    statusCode = 404;
+  }
+  return statusCode === 200;
+}
+
+app.get('/check', async (req, res) => {
+  const url = "https://jp.mercari.com/en/item/m23504670122";
+  if (!url) {
+    res.status(400).json({ error: 'URL parameter is required' });
+  }
+
+  const status = await checkPageStatus(url);
+  res.status(status ? 200 : 404).json({
+    statusCode: status ? 200 : 404,
+    is200: status,
+  });
+});
 
 // Sample route to test the server
 app.get('/', (req: Request, res: Response) => {
