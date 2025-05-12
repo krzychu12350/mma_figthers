@@ -32,20 +32,20 @@ let browser: any;
 //   return browser;
 // }
 
-// async function checkPageStatus(url: string) {
-//   let statusCode;
-//   try {
-//     // const page = await browser.newPage();
-//     // const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
-//     // statusCode = response && response.status() === 200 ? 200 : 404;
-//     // await page.close();
-//     statusCode = 200;
-//   } catch (error) {
-//     console.error('Error accessing page:', error);
-//     statusCode = 404;
-//   }
-//   return statusCode === 200;
-// }
+async function checkPageStatus(url: string) {
+  let statusCode;
+  try {
+    // const page = await browser.newPage();
+    // const response = await page.goto(url, { waitUntil: 'domcontentloaded' });
+    // statusCode = response && response.status() === 200 ? 200 : 404;
+    // await page.close();
+    statusCode = 200;
+  } catch (error) {
+    console.error('Error accessing page:', error);
+    statusCode = 404;
+  }
+  return statusCode === 200;
+}
 
 app.get('/check', async (req, res) => {
   const url = "https://jp.mercari.com/en/item/m23504670122";
@@ -53,7 +53,7 @@ app.get('/check', async (req, res) => {
     res.status(400).json({ error: 'URL parameter is required' });
   }
 
-  const status = 200;
+  const status = await checkPageStatus(url);
   res.status(status ? 200 : 404).json({
     statusCode: status ? 200 : 404,
     is200: status,
